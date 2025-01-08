@@ -46,6 +46,15 @@
             top: 20px;
             right: 20px;
         }
+        /* Estilos específicos para los eventos */
+        .fc-event {
+            background-color: #ffeb3b !important; /* Fondo amarillo claro */
+            color: black !important; /* Color del texto en negro */
+            border: none !important; /* Eliminar bordes */
+        }
+        .fc-daygrid-event .fc-title {
+            color: black !important; /* Asegura que el texto del título sea negro */
+        }
     </style>
 </head>
 <body>
@@ -87,10 +96,6 @@
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
             events: events,
-            eventColor: '#378006', // Color del borde de los eventos
-            eventTextColor: '#000000', // Color del texto de los eventos
-            eventBackgroundColor: '#ffeb3b', // Fondo amarillo claro de los eventos
-            firstDay: 1,
             eventClick: function(info) {
                 const event = info.event;
                 alert(`Reserva: ${event.title}\nFecha: ${event.start.toLocaleString()}\nConvocante: ${event.extendedProps.organizer}\nDescripción: ${event.extendedProps.description}`);
