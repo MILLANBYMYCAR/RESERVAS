@@ -90,7 +90,6 @@
             text-align: center;
         }
 
-        /* Calendario */
         #calendar {
             background-color: #ffffff;
             border-radius: 10px;
@@ -101,14 +100,12 @@
             width: 100%;
         }
 
-        /* Resaltar el día actual */
         .fc-daygrid-day.fc-day-today {
             background-color: #007bff;
             color: black;
             border-color: #0056b3;
         }
 
-        /* Estilo de los botones de la barra de herramientas */
         .fc-toolbar button {
             font-size: 16px;
         }
@@ -146,8 +143,8 @@
             border-radius: 5px;
             cursor: pointer;
             padding: 5px 10px;
-            width: auto; /* Asegura que el botón no se estire */
-            white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+            width: auto;
+            white-space: nowrap;
         }
 
         .reservation-list button:hover {
@@ -161,17 +158,22 @@
         }
 
         .button-group button {
-            width: 48%; /* Ocupa la mitad de espacio cada botón */
+            width: 48%;
         }
+
+        .reservation-list li div {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- Contenedor principal -->
     <div class="container">
         <h1>Reserva tu Cita en la Sala de Reuniones</h1>
 
-        <!-- Formulario de reserva -->
         <form id="reservation-form">
             <div class="form-group">
                 <label for="title">Título de la Cita</label>
@@ -203,22 +205,18 @@
             </div>
         </form>
 
-        <!-- Calendario -->
         <div class="calendar-container">
             <div id="calendar"></div>
         </div>
     </div>
 
-    <!-- Lista de reservas -->
     <div class="reservation-list">
         <h2>Reservas Realizadas</h2>
-        <ul id="reservation-list">
-            <!-- Las reservas se mostrarán aquí -->
-        </ul>
+        <ul id="reservation-list"></ul>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/locales/es.global.min.js"></script> <!-- Cargar idioma español -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/locales/es.global.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -226,7 +224,6 @@
             const events = JSON.parse(localStorage.getItem('events')) || [];
             const reservationListEl = document.getElementById('reservation-list');
 
-            // Cargar eventos en la lista de reservas
             events.forEach(eventData => {
                 const listItem = document.createElement('li');
                 listItem.innerHTML = `${new Date(eventData.start).toLocaleDateString('es-ES')} - 
@@ -235,6 +232,8 @@
                                       TÍTULO: ${eventData.title} - 
                                       DESCRIPCIÓN: ${eventData.extendedProps.description} - 
                                       CONVOCANTE: ${eventData.extendedProps.organizer}`;
+                const buttonContainer = document.createElement('div'); 
+
                 const cancelButton = document.createElement('button');
                 cancelButton.textContent = 'Cancelar';
                 cancelButton.addEventListener('click', function() {
@@ -243,33 +242,35 @@
                     localStorage.setItem('events', JSON.stringify(events));
                     calendar.refetchEvents();
                     listItem.remove();
-                    location.reload(); // Recargar la página al eliminar una reserva
                 });
+
                 const downloadButton = document.createElement('button');
                 downloadButton.textContent = 'Descargar ICS';
                 downloadButton.addEventListener('click', function() {
                     downloadICS(eventData);
                 });
 
-                listItem.appendChild(cancelButton);
-                listItem.appendChild(downloadButton);
+                buttonContainer.appendChild(cancelButton);
+                buttonContainer.appendChild(downloadButton);
+                listItem.appendChild(buttonContainer);
+
                 reservationListEl.appendChild(listItem);
             });
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
-                locale: 'es', // Establecer el idioma a español
-                initialView: 'dayGridMonth', // Vista mensual
+                locale: 'es',
+                initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay' // Cambiar vistas
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
-                events: events, // Cargar los eventos
-                eventColor: '#378006', // Cambiar color de eventos
-                eventTextColor: 'white', // Cambiar color del texto del evento
-                eventBorderColor: 'black', // Color del borde de los eventos
-                eventBackgroundColor: '#007bff', // Color de fondo de los eventos
-                firstDay: 1, // Establecer lunes como primer día de la semana
+                events: events,
+                eventColor: '#378006',
+                eventTextColor: 'white',
+                eventBorderColor: 'black',
+                eventBackgroundColor: '#007bff',
+                firstDay: 1,
                 eventClick: function(info) {
                     const event = info.event;
                     alert(`Reserva: ${event.title}\nFecha: ${event.start.toLocaleString()}\nConvocante: ${event.extendedProps.organizer}\nDescripción: ${event.extendedProps.description}`);
@@ -278,7 +279,6 @@
 
             calendar.render();
 
-            // Manejo de la reserva
             document.getElementById('reservation-form').addEventListener('submit', function(event) {
                 event.preventDefault();
 
@@ -292,6 +292,18 @@
                 const startDateTime = new Date(`${date}T${startTime}`);
                 const endDateTime = new Date(`${date}T${endTime}`);
 
+                // Verificar que no haya solapamientos
+                const isOverlapping = events.some(event => {
+                    const eventStart = new Date(event.start);
+                    const eventEnd = new Date(event.end);
+                    return (startDateTime < eventEnd && endDateTime > eventStart);
+                });
+
+                if (isOverlapping) {
+                    alert("La hora seleccionada ya está reservada.");
+                    return;
+                }
+
                 const eventData = {
                     title,
                     start: startDateTime.toISOString(),
@@ -302,21 +314,18 @@
                     }
                 };
 
-                // Añadir evento al calendario
                 events.push(eventData);
                 localStorage.setItem('events', JSON.stringify(events));
 
-                // Refrescar el calendario con los nuevos eventos
-                calendar.refetchEvents();
-
-                // Añadir la reserva al listado
                 const listItem = document.createElement('li');
-                listItem.innerHTML = `${new Date(eventData.start).toLocaleDateString('es-ES')} - 
-                                      ${new Date(eventData.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
-                                      a ${new Date(eventData.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+                listItem.innerHTML = `${startDateTime.toLocaleDateString('es-ES')} - 
+                                      ${startDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
+                                      a ${endDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
                                       TÍTULO: ${eventData.title} - 
                                       DESCRIPCIÓN: ${eventData.extendedProps.description} - 
                                       CONVOCANTE: ${eventData.extendedProps.organizer}`;
+
+                const buttonContainer = document.createElement('div'); 
 
                 const cancelButton = document.createElement('button');
                 cancelButton.textContent = 'Cancelar';
@@ -326,59 +335,42 @@
                     localStorage.setItem('events', JSON.stringify(events));
                     calendar.refetchEvents();
                     listItem.remove();
-                    location.reload(); // Recargar la página al eliminar una reserva
                 });
 
-                const downloadButton = document.createElement('button');
-                downloadButton.textContent = 'Descargar ICS';
-                downloadButton.addEventListener('click', function() {
-                    downloadICS(eventData);
-                });
+                buttonContainer.appendChild(cancelButton);
+                listItem.appendChild(buttonContainer);
 
-                listItem.appendChild(cancelButton);
-                listItem.appendChild(downloadButton);
                 reservationListEl.appendChild(listItem);
 
-                // Limpiar el formulario
-                document.getElementById('reservation-form').reset();
+                calendar.refetchEvents();
 
-                // Descargar el archivo ICS
+                // Descargar el archivo ICS automáticamente
                 downloadICS(eventData);
 
-                // Recargar la página después de hacer la reserva
-                location.reload(); // Recargar la página automáticamente al hacer una reserva
+                document.getElementById('reservation-form').reset();
             });
+        });
 
-            // Descargar archivo ICS
-            function downloadICS(eventData) {
-                const icsContent = `
+        function downloadICS(eventData) {
+            const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:${eventData.title}
-DTSTART:${eventData.start.replace(/-/g, '').replace('T', 'T')}
-DTEND:${eventData.end.replace(/-/g, '').replace('T', 'T')}
 DESCRIPTION:${eventData.extendedProps.description}
+LOCATION:Sala de Reuniones
+DTSTART:${eventData.start.replace(/-|:|\./g, '')}
+DTEND:${eventData.end.replace(/-|:|\./g, '')}
 END:VEVENT
 END:VCALENDAR
-                `;
-                const icsBlob = new Blob([icsContent], { type: 'text/calendar' });
-                const icsUrl = URL.createObjectURL(icsBlob);
+`;
 
-                const downloadLink = document.createElement('a');
-                downloadLink.href = icsUrl;
-                downloadLink.download = `${eventData.title}.ics`;
-
-                // Hacer clic en el enlace para descargar el archivo
-                downloadLink.click();
-            }
-
-            // Redirigir a calendar_print.html al hacer clic en Imprimir
-            document.getElementById('print-btn').addEventListener('click', function() {
-                window.location.href = 'calendar_print.html';
-            });
-        });
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${eventData.title}.ics`;
+            link.click();
+        }
     </script>
-
 </body>
 </html>
