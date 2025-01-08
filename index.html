@@ -3,382 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva Sala de Reuniones</title>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.css" rel="stylesheet">
+    <title>Reserva de Sala</title>
+    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@3.10.2/main.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@3.10.2/main.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@3.10.2/main.css" rel="stylesheet">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            box-sizing: border-box;
         }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        h1 {
-            color: #007bff;
-            font-size: 28px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            color: #333;
-            box-sizing: border-box;
-        }
-
-        input[type="datetime-local"], input[type="time"] {
-            font-size: 16px;
-        }
-
-        textarea {
-            height: 100px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            font-size: 18px;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: block;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .calendar-container {
-            margin-top: 50px;
-            width: 100%;
-            text-align: center;
-        }
-
-        /* Calendario */
         #calendar {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-            margin-top: 20px;
-            width: 100%;
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-
-        /* Resaltar el día actual */
-        .fc-daygrid-day.fc-day-today {
-            background-color: #007bff;
+        .button {
+            background-color: #4CAF50;
             color: white;
-            border-color: #0056b3;
-        }
-
-        /* Estilo de los botones de la barra de herramientas */
-        .fc-toolbar button {
-            font-size: 16px;
-        }
-
-        .reservation-list {
-            margin-top: 30px;
-            text-align: left;
-            width: 100%;
-        }
-
-        .reservation-list ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .reservation-list li {
-            background-color: #f9f9f9;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .reservation-list li:hover {
-            background-color: #e0f7ff;
-        }
-
-        .reservation-list button {
-            background-color: #ff4d4d;
-            color: white;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            padding: 5px 10px;
-            width: auto; /* Asegura que el botón no se estire */
-            white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+            text-align: center;
+            display: inline-block;
         }
-
-        .reservation-list button:hover {
-            background-color: #cc0000;
+        .button:hover {
+            background-color: #45a049;
         }
-
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
+        .event-btn {
+            background-color: #f9c300;
         }
-
-        .button-group button {
-            width: 48%; /* Ocupa la mitad de espacio cada botón */
+        .event-btn:hover {
+            background-color: #f4b300;
+        }
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
     </style>
 </head>
 <body>
-
-    <!-- Contenedor principal -->
-    <div class="container">
-        <h1>Reserva tu Cita en la Sala de Reuniones</h1>
-
-        <!-- Formulario de reserva -->
-        <form id="reservation-form">
-            <div class="form-group">
-                <label for="title">Título de la Cita</label>
-                <input type="text" id="title" name="title" placeholder="Escribe el título de la reunión" required>
-            </div>
-            <div class="form-group">
-                <label for="organizer">Convocante</label>
-                <input type="text" id="organizer" name="organizer" placeholder="Tu nombre o el del convocante" required>
-            </div>
-            <div class="form-group">
-                <label for="date">Fecha</label>
-                <input type="date" id="date" name="date" required>
-            </div>
-            <div class="form-group">
-                <label for="start-time">Hora de Inicio</label>
-                <input type="time" id="start-time" name="start-time" required>
-            </div>
-            <div class="form-group">
-                <label for="end-time">Hora de Fin</label>
-                <input type="time" id="end-time" name="end-time" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Descripción</label>
-                <textarea id="description" name="description" placeholder="Detalles adicionales sobre la cita" required></textarea>
-            </div>
-            <div class="button-group">
-                <button type="submit" id="reserve-btn">Reservar</button>
-                <button type="button" id="print-btn">Imprimir</button>
-            </div>
-        </form>
-
-        <!-- Calendario -->
-        <div class="calendar-container">
-            <div id="calendar"></div>
-        </div>
+    <div class="top-right">
+        <button class="button" id="refreshBtn">Actualizar</button>
     </div>
+    
+    <div id="calendar"></div>
 
-    <!-- Lista de reservas -->
-    <div class="reservation-list">
-        <h2>Reservas Realizadas</h2>
-        <ul id="reservation-list">
-            <!-- Las reservas se mostrarán aquí -->
-        </ul>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/locales/es.global.min.js"></script> <!-- Cargar idioma español -->
+    <button class="button" id="reservarBtn">Reservar</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@3.10.2/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@3.10.2/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@3.10.2/main.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const calendarEl = document.getElementById('calendar');
-            const events = JSON.parse(localStorage.getItem('events')) || [];
-            const reservationListEl = document.getElementById('reservation-list');
-
-            // Cargar eventos en la lista de reservas
-            events.forEach(eventData => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `${new Date(eventData.start).toLocaleDateString('es-ES')} - 
-                                      ${new Date(eventData.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
-                                      a ${new Date(eventData.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
-                                      TÍTULO: ${eventData.title} - 
-                                      DESCRIPCIÓN: ${eventData.extendedProps.description} - 
-                                      CONVOCANTE: ${eventData.extendedProps.organizer}`;
-                const cancelButton = document.createElement('button');
-                cancelButton.textContent = 'Cancelar';
-                cancelButton.addEventListener('click', function() {
-                    const index = events.findIndex(event => event.title === eventData.title && event.start === eventData.start);
-                    events.splice(index, 1);
-                    localStorage.setItem('events', JSON.stringify(events));
-                    calendar.refetchEvents();
-                    listItem.remove();
-                    location.reload(); // Recargar la página al eliminar una reserva
-                });
-                const downloadButton = document.createElement('button');
-                downloadButton.textContent = 'Descargar ICS';
-                downloadButton.addEventListener('click', function() {
-                    downloadICS(eventData);
-                });
-
-                listItem.appendChild(cancelButton);
-                listItem.appendChild(downloadButton);
-                reservationListEl.appendChild(listItem);
-            });
-
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                locale: 'es', // Establecer el idioma a español
-                initialView: 'dayGridMonth', // Vista mensual
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay' // Cambiar vistas
-                },
-                events: events, // Cargar los eventos
-                eventColor: '#378006', // Cambiar color de eventos
-                eventTextColor: '#000000', // Cambiar color del texto del evento
-                eventBorderColor: '#ffeb3b', // Color del borde de los eventos
-                eventBackgroundColor: '#007bff', // Color de fondo de los eventos
-                firstDay: 1, // Establecer lunes como primer día de la semana
-                eventClick: function(info) {
-                    const event = info.event;
-                    alert(`Reserva: ${event.title}\nFecha: ${event.start.toLocaleString()}\nConvocante: ${event.extendedProps.organizer}\nDescripción: ${event.extendedProps.description}`);
+        // Datos de ejemplo para las reservas
+        const events = [
+            {
+                title: 'Reunión de Equipo',
+                start: '2025-01-09T10:00:00',
+                end: '2025-01-09T11:00:00',
+                extendedProps: {
+                    organizer: 'Juan Pérez',
+                    description: 'Reunión para discutir el progreso de los proyectos.'
                 }
-            });
+            }
+        ];
 
-            calendar.render();
+        const calendarEl = document.getElementById('calendar');
+        
+        // Configuración del calendario
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'es',
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: events,
+            eventColor: '#378006', // Color del borde de los eventos
+            eventTextColor: '#000000', // Color del texto de los eventos
+            eventBackgroundColor: '#ffeb3b', // Fondo amarillo claro de los eventos
+            firstDay: 1,
+            eventClick: function(info) {
+                const event = info.event;
+                alert(`Reserva: ${event.title}\nFecha: ${event.start.toLocaleString()}\nConvocante: ${event.extendedProps.organizer}\nDescripción: ${event.extendedProps.description}`);
+            }
+        });
 
-            // Manejo de la reserva
-            document.getElementById('reservation-form').addEventListener('submit', function(event) {
-                event.preventDefault();
+        // Inicializar el calendario
+        calendar.render();
 
-                const title = document.getElementById('title').value;
-                const organizer = document.getElementById('organizer').value;
-                const date = document.getElementById('date').value;
-                const startTime = document.getElementById('start-time').value;
-                const endTime = document.getElementById('end-time').value;
-                const description = document.getElementById('description').value;
-
-                const startDateTime = new Date(`${date}T${startTime}`);
-                const endDateTime = new Date(`${date}T${endTime}`);
-
-                const eventData = {
-                    title,
-                    start: startDateTime.toISOString(),
-                    end: endDateTime.toISOString(),
-                    extendedProps: {
-                        description,
-                        organizer
-                    }
-                };
-
-                // Añadir evento al calendario
-                events.push(eventData);
-                localStorage.setItem('events', JSON.stringify(events));
-
-                // Refrescar el calendario con los nuevos eventos
-                calendar.refetchEvents();
-
-                // Añadir la reserva al listado
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `${new Date(eventData.start).toLocaleDateString('es-ES')} - 
-                                      ${new Date(eventData.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
-                                      a ${new Date(eventData.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
-                                      TÍTULO: ${eventData.title} - 
-                                      DESCRIPCIÓN: ${eventData.extendedProps.description} - 
-                                      CONVOCANTE: ${eventData.extendedProps.organizer}`;
-
-                const cancelButton = document.createElement('button');
-                cancelButton.textContent = 'Cancelar';
-                cancelButton.addEventListener('click', function() {
-                    const index = events.findIndex(event => event.title === eventData.title && event.start === eventData.start);
-                    events.splice(index, 1);
-                    localStorage.setItem('events', JSON.stringify(events));
-                    calendar.refetchEvents();
-                    listItem.remove();
-                    location.reload(); // Recargar la página al eliminar una reserva
-                });
-
-                const downloadButton = document.createElement('button');
-                downloadButton.textContent = 'Descargar ICS';
-                downloadButton.addEventListener('click', function() {
-                    downloadICS(eventData);
-                });
-
-                listItem.appendChild(cancelButton);
-                listItem.appendChild(downloadButton);
-                reservationListEl.appendChild(listItem);
-
-                // Limpiar el formulario
-                document.getElementById('reservation-form').reset();
-
-                // Descargar el archivo ICS
-                downloadICS(eventData);
-
-                // Recargar la página después de hacer la reserva
-                location.reload(); // Recargar la página automáticamente al hacer una reserva
-            });
-
-            // Descargar archivo ICS
-            function downloadICS(eventData) {
-                const icsContent = `
+        // Botón de Reservar (crear una nueva reserva y descargar el archivo .ics)
+        document.getElementById('reservarBtn').addEventListener('click', function() {
+            const newEvent = {
+                title: 'Reserva de Sala',
+                start: '2025-01-09T14:00:00',
+                end: '2025-01-09T15:00:00',
+                extendedProps: {
+                    organizer: 'Ana Sánchez',
+                    description: 'Reservado para reunión de departamento.'
+                }
+            };
+            calendar.addEvent(newEvent);
+            
+            // Crear y descargar archivo .ics
+            const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
+PRODID:-//YourCompany//NONSGML v1.0//EN
 BEGIN:VEVENT
-SUMMARY:${eventData.title}
-DTSTART:${eventData.start.replace(/-/g, '').replace('T', 'T')}
-DTEND:${eventData.end.replace(/-/g, '').replace('T', 'T')}
-DESCRIPTION:${eventData.extendedProps.description}
+SUMMARY:${newEvent.title}
+DTSTART:${newEvent.start.toISOString().replace(/[-:]|\.\d{3}/g, '')}
+DTEND:${newEvent.end.toISOString().replace(/[-:]|\.\d{3}/g, '')}
+DESCRIPTION:${newEvent.extendedProps.description}
+ORGANIZER:${newEvent.extendedProps.organizer}
 END:VEVENT
 END:VCALENDAR
-                `;
-                const icsBlob = new Blob([icsContent], { type: 'text/calendar' });
-                const icsUrl = URL.createObjectURL(icsBlob);
+            `;
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'reserva_sala.ics';
+            a.click();
+            URL.revokeObjectURL(url); // Liberar memoria
+        });
 
-                const downloadLink = document.createElement('a');
-                downloadLink.href = icsUrl;
-                downloadLink.download = `${eventData.title}.ics`;
-
-                // Hacer clic en el enlace para descargar el archivo
-                downloadLink.click();
-            }
-
-            // Redirigir a calendar_print.html al hacer clic en Imprimir
-            document.getElementById('print-btn').addEventListener('click', function() {
-                window.location.href = 'calendar_print.html';
-            });
+        // Botón de Actualizar (recarga la página)
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            location.reload();
         });
     </script>
-
 </body>
 </html>
