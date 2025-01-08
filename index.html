@@ -153,12 +153,12 @@
 
         .button-group {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 10px;
         }
 
         .button-group button {
-            width: 48%;
+            width: auto;
         }
 
         .reservation-list li div {
@@ -337,7 +337,14 @@
                     listItem.remove();
                 });
 
+                const downloadButton = document.createElement('button');
+                downloadButton.textContent = 'Descargar ICS';
+                downloadButton.addEventListener('click', function() {
+                    downloadICS(eventData);
+                });
+
                 buttonContainer.appendChild(cancelButton);
+                buttonContainer.appendChild(downloadButton);
                 listItem.appendChild(buttonContainer);
 
                 reservationListEl.appendChild(listItem);
@@ -349,6 +356,11 @@
 
                 document.getElementById('reservation-form').reset();
             });
+
+            document.getElementById('print-btn').addEventListener('click', function () {
+                window.open('calendar_print.html', '_blank'); // Abre calendar_print.html en nueva pestaña
+            });
+
         });
 
         function downloadICS(eventData) {
