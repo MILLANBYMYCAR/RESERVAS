@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Reservas</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Contenedor del calendario */
+        #calendar-container {
+            width: 90%;
+            max-width: 1200px;
+            display: block;
+            margin-top: 20px;
+        }
+
+        #calendar {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        /* Mejorar la apariencia de los días */
+        .fc-daygrid-day {
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            padding: 5px;
+            transition: background-color 0.3s ease, border 0.3s ease;
+        }
+
+        /* Resaltar los días en la vista mensual */
+        .fc-daygrid-day:hover {
+            background-color: #f0f0f0;
+            border-color: #007bff;
+        }
+
+        /* Resaltar el día actual */
+        .fc-daygrid-day.fc-day-today {
+            background-color: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+
+        /* Estilo para la barra de días de la semana */
+        .fc-col-header-cell {
+            font-weight: bold;
+            text-align: center;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+        }
+
+        .fc-col-header-cell:hover {
+            background-color: #0056b3;
+        }
+
+        /* Botón de impresión */
+        .print-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .print-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo para impresión */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Ocultar el botón de impresión en la vista de impresión */
+            .print-button {
+                display: none;
+            }
+
+            #calendar-container {
+                width: 100%; /* Asegurarse de que el calendario ocupe todo el ancho */
+                text-align: center; /* Centrar el calendario horizontalmente */
+                margin: 0 auto;
+                display: block;
+            }
+
+            #calendar {
+                width: 100%;
+                height: auto;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+                background: #ffffff;
+                border-radius: 10px;
+            }
+
+            @page {
+                size: landscape; /* Imprimir en formato apaisado */
+                margin: 0; /* Eliminar márgenes de la página */
+            }
+
+            /* Mejorar la visualización en la impresión */
+            .fc-daygrid-day-number {
+                font-size: 18px;
+                color: #007bff;
+            }
+
+            .fc-daygrid-day {
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+            }
+
+            .fc-daygrid-day:hover {
+                background-color: #f0f0f0;
+            }
+
+            .fc-event {
+                background-color: #007bff;
+                color: white;
+                border-radius: 5px;
+                font-size: 14px;
+                padding: 5px;
+            }
+
+            /* Ajuste de overflow para que el calendario no se corte */
+            .fc-daygrid {
+                overflow-x: hidden !important; /* Eliminar el desbordamiento */
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botón de impresión en la parte superior -->
+    <button class="print-button" onclick="window.print()">Imprimir Calendario</button>
+
+    <!-- Contenedor del calendario -->
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/locales/es.global.min.js"></script> <!-- Cargar idioma español -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'es', // Establecer el idioma a español
+                initialView: 'dayGridMonth', // Vista mensual
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay' // Cambiar vistas
+                },
+                buttonText: { // Traducir los botones
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    list: 'Lista'
+                },
+                events: events, // Cargar los eventos
+                eventColor: '#378006', // Cambiar color de eventos
+                eventTextColor: 'white', // Cambiar color del texto del evento
+                eventBorderColor: 'black', // Color del borde de los eventos
+                eventBackgroundColor: '#007bff', // Color de fondo de los eventos
+                firstDay: 1, // Establecer lunes como primer día de la semana
+                dayHeaderClassNames: ['fc-col-header-cell'], // Clase para cabeceras de días
+                dayCellClassNames: ['fc-daygrid-day'] // Clase para celdas de días
+            });
+
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
